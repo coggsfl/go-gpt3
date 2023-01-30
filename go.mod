@@ -3,7 +3,6 @@ module github.com/coggsfl/go-gpt3
 go 1.18
 
 require (
-	github.com/PullRequestInc/go-gpt3 v1.1.11
 	github.com/joho/godotenv v1.3.0
 	github.com/maxbrunsfeld/counterfeiter/v6 v6.2.3
 	github.com/stretchr/testify v1.6.1
