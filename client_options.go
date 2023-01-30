@@ -32,6 +32,14 @@ func WithEnginePathName(pathName string) ClientOption {
 	}
 }
 
+// WithAPIVersion is a client option that allows you to set api-version HTTP header for Azure OpenAI compatibility
+func WithAPIVersion(apiVersion string) ClientOption {
+	return func(c *client) error {
+		c.apiVersion = apiVersion
+		return nil
+	}
+}
+
 // WithUserAgent is a client option that allows you to override the default user agent of the client
 func WithUserAgent(userAgent string) ClientOption {
 	return func(c *client) error {

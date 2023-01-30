@@ -54,6 +54,7 @@ const (
 	defaultUserAgent      = "go-gpt3"
 	defaultTimeoutSeconds = 30
 	defaultEnginePathName = "engines"
+	defaultAPIVersion     = "2022-12-01"
 )
 
 func getEngineURL(engine string) string {
@@ -105,6 +106,7 @@ type client struct {
 	defaultEngine  string
 	idOrg          string
 	enginePathName string
+	apiVersion     string
 }
 
 // NewClient returns a new OpenAI GPT-3 API client. An apiKey is required to use the client
@@ -121,6 +123,7 @@ func NewClient(apiKey string, options ...ClientOption) Client {
 		defaultEngine:  DefaultEngine,
 		idOrg:          "",
 		enginePathName: defaultEnginePathName,
+		apiVersion:     "",
 	}
 	for _, o := range options {
 		o(c)
@@ -295,6 +298,10 @@ func (c *client) Embeddings(ctx context.Context, request EmbeddingsRequest) (*Em
 }
 
 func (c *client) performRequest(req *http.Request) (*http.Response, error) {
+
+	if c.apiVersion != "" {
+		req.Header.Set("api-version", c.apiVersion)
+	}
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, err
