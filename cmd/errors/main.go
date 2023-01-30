@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/PullRequestInc/go-gpt3"
+	"github.com/coggsfl/go-gpt3"
 	"github.com/joho/godotenv"
 )
 
