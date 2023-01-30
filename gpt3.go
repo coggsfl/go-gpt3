@@ -53,6 +53,7 @@ const (
 	defaultBaseURL        = "https://api.openai.com/v1"
 	defaultUserAgent      = "go-gpt3"
 	defaultTimeoutSeconds = 30
+	defaultEnginePathName = "engines"
 )
 
 func getEngineURL(engine string) string {
@@ -97,12 +98,13 @@ type Client interface {
 }
 
 type client struct {
-	baseURL       string
-	apiKey        string
-	userAgent     string
-	httpClient    *http.Client
-	defaultEngine string
-	idOrg         string
+	baseURL        string
+	apiKey         string
+	userAgent      string
+	httpClient     *http.Client
+	defaultEngine  string
+	idOrg          string
+	enginePathName string
 }
 
 // NewClient returns a new OpenAI GPT-3 API client. An apiKey is required to use the client
@@ -112,12 +114,13 @@ func NewClient(apiKey string, options ...ClientOption) Client {
 	}
 
 	c := &client{
-		userAgent:     defaultUserAgent,
-		apiKey:        apiKey,
-		baseURL:       defaultBaseURL,
-		httpClient:    httpClient,
-		defaultEngine: DefaultEngine,
-		idOrg:         "",
+		userAgent:      defaultUserAgent,
+		apiKey:         apiKey,
+		baseURL:        defaultBaseURL,
+		httpClient:     httpClient,
+		defaultEngine:  DefaultEngine,
+		idOrg:          "",
+		enginePathName: defaultEnginePathName,
 	}
 	for _, o := range options {
 		o(c)
@@ -126,7 +129,7 @@ func NewClient(apiKey string, options ...ClientOption) Client {
 }
 
 func (c *client) Engines(ctx context.Context) (*EnginesResponse, error) {
-	req, err := c.newRequest(ctx, "GET", "/engines", nil)
+	req, err := c.newRequest(ctx, "GET", "/%s", c.enginePathName)
 	if err != nil {
 		return nil, err
 	}
@@ -143,7 +146,7 @@ func (c *client) Engines(ctx context.Context) (*EnginesResponse, error) {
 }
 
 func (c *client) Engine(ctx context.Context, engine string) (*EngineObject, error) {
-	req, err := c.newRequest(ctx, "GET", fmt.Sprintf("/engines/%s", engine), nil)
+	req, err := c.newRequest(ctx, "GET", fmt.Sprintf("/%s/%s", c.enginePathName, engine), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -165,7 +168,7 @@ func (c *client) Completion(ctx context.Context, request CompletionRequest) (*Co
 
 func (c *client) CompletionWithEngine(ctx context.Context, engine string, request CompletionRequest) (*CompletionResponse, error) {
 	request.Stream = false
-	req, err := c.newRequest(ctx, "POST", fmt.Sprintf("/engines/%s/completions", engine), request)
+	req, err := c.newRequest(ctx, "POST", fmt.Sprintf("/%s/%s/completions", c.enginePathName, engine), request)
 	if err != nil {
 		return nil, err
 	}
@@ -195,7 +198,7 @@ func (c *client) CompletionStreamWithEngine(
 	onData func(*CompletionResponse),
 ) error {
 	request.Stream = true
-	req, err := c.newRequest(ctx, "POST", fmt.Sprintf("/engines/%s/completions", engine), request)
+	req, err := c.newRequest(ctx, "POST", fmt.Sprintf("/%s/%s/completions", c.enginePathName, engine), request)
 	if err != nil {
 		return err
 	}
@@ -256,7 +259,7 @@ func (c *client) Search(ctx context.Context, request SearchRequest) (*SearchResp
 }
 
 func (c *client) SearchWithEngine(ctx context.Context, engine string, request SearchRequest) (*SearchResponse, error) {
-	req, err := c.newRequest(ctx, "POST", fmt.Sprintf("/engines/%s/search", engine), request)
+	req, err := c.newRequest(ctx, "POST", fmt.Sprintf("/%s/%s/search", c.enginePathName, engine), request)
 	if err != nil {
 		return nil, err
 	}

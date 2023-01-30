@@ -24,6 +24,14 @@ func WithDefaultEngine(engine string) ClientOption {
 	}
 }
 
+// WithEnginePathName is a client option that allows you to override the API path name of /engines/ for Azure OpenAI compatibility
+func WithEnginePathName(pathName string) ClientOption {
+	return func(c *client) error {
+		c.enginePathName = pathName
+		return nil
+	}
+}
+
 // WithUserAgent is a client option that allows you to override the default user agent of the client
 func WithUserAgent(userAgent string) ClientOption {
 	return func(c *client) error {
