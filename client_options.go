@@ -40,6 +40,22 @@ func WithAPIVersion(apiVersion string) ClientOption {
 	}
 }
 
+// WithAPIVersion is a client option that allows you to override the HTTP Authorization header field to api-key for Azure OpenAI compatibility
+func WithAPIKeyHeader(apiKeyHeader string) ClientOption {
+	return func(c *client) error {
+		c.apiKeyHeader = apiKeyHeader
+		return nil
+	}
+}
+
+// WithAPIVersion is a client option that allows you to override the HTTP Authorization value field prefix to remove 'bearer' for Azure OpenAI compatibility
+func WithAPIValuePrefix(apiValuePrefix string) ClientOption {
+	return func(c *client) error {
+		c.apiValuePrefix = apiValuePrefix
+		return nil
+	}
+}
+
 // WithUserAgent is a client option that allows you to override the default user agent of the client
 func WithUserAgent(userAgent string) ClientOption {
 	return func(c *client) error {

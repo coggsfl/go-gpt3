@@ -55,6 +55,8 @@ const (
 	defaultTimeoutSeconds = 30
 	defaultEnginePathName = "engines"
 	defaultAPIVersion     = "2022-12-01"
+	defaultAPIKeyHeader   = "Authorization"
+	defaultAPIValuePrefix = "bearer "
 )
 
 func getEngineURL(engine string) string {
@@ -107,6 +109,8 @@ type client struct {
 	idOrg          string
 	enginePathName string
 	apiVersion     string
+	apiKeyHeader   string
+	apiValuePrefix string
 }
 
 // NewClient returns a new OpenAI GPT-3 API client. An apiKey is required to use the client
@@ -124,6 +128,8 @@ func NewClient(apiKey string, options ...ClientOption) Client {
 		idOrg:          "",
 		enginePathName: defaultEnginePathName,
 		apiVersion:     "",
+		apiKeyHeader:   defaultAPIKeyHeader,
+		apiValuePrefix: defaultAPIValuePrefix,
 	}
 	for _, o := range options {
 		o(c)
@@ -300,8 +306,11 @@ func (c *client) Embeddings(ctx context.Context, request EmbeddingsRequest) (*Em
 func (c *client) performRequest(req *http.Request) (*http.Response, error) {
 
 	if c.apiVersion != "" {
-		req.Header.Set("api-version", c.apiVersion)
+		query := req.URL.Query()
+		query.Add("api-version", c.apiVersion)
+		req.URL.RawQuery = query.Encode()
 	}
+
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, err
@@ -369,6 +378,6 @@ func (c *client) newRequest(ctx context.Context, method, path string, payload in
 		req.Header.Set("OpenAI-Organization", c.idOrg)
 	}
 	req.Header.Set("Content-type", "application/json")
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.apiKey))
+	req.Header.Set(c.apiKeyHeader, fmt.Sprintf("%s %s", c.apiValuePrefix, c.apiKey))
 	return req, nil
 }
