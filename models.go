@@ -48,7 +48,7 @@ type CompletionRequest struct {
 	// Include the probabilities of most likely tokens
 	LogProbs *int `json:"logprobs"`
 	// Echo back the prompt in addition to the completion
-	Echo bool `json:"echo"`
+	Echo bool `json:"echo,omitempty"`
 	// Up to 4 sequences where the API will stop generating tokens. Response will not contain the stop sequence.
 	Stop []string `json:"stop,omitempty"`
 	// PresencePenalty number between 0 and 1 that penalizes tokens that have already appeared in the text so far.
